@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Navigator AI - Professional Roadmap Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Career Navigator AI</h1>
+        <p class="subtitle">Generate a professional roadmap for your career journey</p>
+        
+        <form method="post" action="{{ url_for('index') }}">
+            <label for="role">What career path would you like to explore?</label>
+            <div class="search-container">
+                <input type="text" id="role" name="role" placeholder="e.g., Data Scientist, Web Developer, UX Designer" required>
+                <button type="submit" id="generateBtn"><i class="fas fa-map-marked-alt"></i> Generate Roadmap</button>
+            </div>
+        </form>
+
+        <!-- Loading animation -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Generating your roadmap...</p>
+        </div>
+
+        {% if roadmap %}
+            <h2><i class="fas fa-map-signs"></i> Your Career Journey</h2>
+            <div class="roadmap-container">
+                <div class="milestone-container">
+                    {% for step in roadmap.split(" ➝ ") %}
+                        <div class="milestone">
+                            <div class="milestone-number">
+                                {% if loop.index == 1 %}
+                                    <i class="fas fa-flag"></i>
+                                {% elif loop.last %}
+                                    <i class="fas fa-trophy"></i>
+                                {% else %}
+                                    {{ loop.index }}
+                                {% endif %}
+                            </div>
+                            <div class="milestone-title" onclick="window.location.href='{{ url_for('roadmap_step', step=step, roadmap=roadmap) }}'">
+                                {{ step }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> How to use this roadmap</h3>
+                <p>Click on any milestone to view detailed learning resources and recommended courses for that stage of your career journey.</p>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-route fa-4x"></i>
+                <p>Enter a career role above to generate your personalized learning roadmap!</p>
+            </div>
+        {% endif %}
+        
+        <footer>
+            <p>Career Navigator AI - Helping you chart your professional journey</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ step }} - Career Navigator AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-graduation-cap"></i> {{ step }}</h1>
+        
+        <div class="courses-container">
+            <h2><i class="fas fa-book"></i> Recommended Learning Resources</h2>
+            {% if recommended_courses %}
+                {% for course in recommended_courses %}
+                    <div class="course-card">
+                        <div class="course-info">
+                            <div class="course-name">{{ course['Course Name'] }}</div>
+                            <div class="course-rating">
+                                <i class="fas fa-star"></i> {{ course['Rating'] }} 
+                                {% if course['Enrollments'] %}
+                                    <span class="enrollments">
+                                        <i class="fas fa-user-graduate"></i> {{ course['Enrollments'] }} enrolled
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="course-action">
+                            <a href="{{ course['Link'] }}" target="_blank" rel="noopener noreferrer" class="course-btn">
+                                <i class="fas fa-external-link-alt"></i> View Course
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-courses">
+                    <i class="fas fa-search fa-3x"></i>
+                    <p>No specific courses found for "{{ step }}". Try exploring related resources or check back later.</p>
+                    {% if error %}
+                        <p class="error-message">Error: {{ error }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <h2><i class="fas fa-map-signs"></i> Your Career Journey</h2>
+        <div class="roadmap-container">
+            <div class="milestone-container">
+                {% if steps %}
+                    {% for s in steps %}
+                        <div class="milestone {% if s == step %}active{% endif %}">
+                            <div class="milestone-number">
+                                {% if loop.index == 1 %}
+                                    <i class="fas fa-flag"></i>
+                                {% elif loop.last %}
+                                    <i class="fas fa-trophy"></i>
+                                {% else %}
+                                    {{ loop.index }}
+                                {% endif %}
+                            </div>
+                            <div class="milestone-title" onclick="window.location.href='{{ url_for('roadmap_step', step=s, roadmap=roadmap) }}'">
+                                {{ s }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="milestone active">
+                        <div class="milestone-number">1</div>
+                        <div class="milestone-title">
+                            {{ step }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{{ url_for('index') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
