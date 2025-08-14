@@ -1,0 +1,23 @@
+{
+  "name": "hackrx-document-intelligence",
+  "version": "1.0.0",
+  "description": "HackRx 6.0 Document Intelligence Agent - Minimal Working Version",
+  "main": "index.js",
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "build": "echo 'No build step required for Netlify Functions'",
+    "test": "echo 'Tests will be added in future versions'"
+  },
+  "keywords": [
+    "hackrx",
+    "document-intelligence",
+    "ai",
+    "insurance",
+    "netlify-functions"
+  ],
+  "author": "HackRx 6.0 Team",
+  "license": "MIT"
+}

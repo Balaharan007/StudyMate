@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackRx 6.0 Document Intelligence Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        h1 {
+            color: #4a5568;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #718096;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .api-info {
+            background: #f7fafc;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .endpoint {
+            background: #2d3748;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            word-break: break-all;
+        }
+        
+        .method {
+            background: #48bb78;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+        
+        .test-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: #edf2f7;
+            border-radius: 10px;
+        }
+        
+        .btn {
+            background: #4299e1;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #3182ce;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #48bb78;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .feature h3 {
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .test-result.success {
+            background: #c6f6d5;
+            border: 1px solid #48bb78;
+            color: #22543d;
+        }
+        
+        .test-result.error {
+            background: #fed7d7;
+            border: 1px solid #e53e3e;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>HackRx 6.0 Document Intelligence Agent</h1>
+        <p class="subtitle">
+            <span class="status-indicator"></span>
+            AI-Powered Document Analysis API - Production Ready
+        </p>
+        
+        <div class="api-info">
+            <h2>🎯 Main API Endpoint</h2>
+            <div class="endpoint">
+                <span class="method">POST</span> https://documentretrieval.netlify.app/hackrx/run
+            </div>
+            <p><strong>Purpose:</strong> Process documents and answer questions with AI analysis</p>
+            <p><strong>Authentication:</strong> Bearer Token required</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>✅ Document Processing</h3>
+                <p>Supports PDF and text documents from URLs</p>
+            </div>
+            <div class="feature">
+                <h3>🧠 AI Analysis</h3>
+                <p>Uses Google Gemini for intelligent responses</p>
+            </div>
+            <div class="feature">
+                <h3>🔒 Secure API</h3>
+                <p>Bearer token authentication</p>
+            </div>
+            <div class="feature">
+                <h3>⚡ Fast Response</h3>
+                <p>Optimized for insurance and legal domains</p>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 Test the API</h3>
+            <p>Click below to test the HackRx endpoint with sample data:</p>
+            <button class="btn btn-success" onclick="testAPI()">Test HackRx API</button>
+            <button class="btn" onclick="viewDocs()">View API Documentation</button>
+            
+            <div id="testResult" class="test-result"></div>
+        </div>
+        
+        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096;">
+                Built for HackRx 6.0 Competition • 
+                <a href="https://github.com/Balaharan007/HACKRX" style="color: #4299e1;">View Source Code</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'test-result';
+            resultDiv.innerHTML = '⏳ Testing API endpoint...';
+            
+            try {
+                const response = await fetch('/hackrx/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer YOUR_BEARER_TOKEN' // Replace with actual token
+                    },
+                    body: JSON.stringify({
+                        documents: "This is a sample insurance policy. The grace period for premium payment is thirty days after the due date.",
+                        questions: [
+                            "What is the grace period for premium payment?",
+                            "What type of document is this?"
+                        ]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'test-result success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ API Test Successful!</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Response:</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.innerHTML = `
+                        <strong>❌ API Test Failed</strong><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Error:</strong> ${response.statusText}
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `
+                    <strong>❌ Connection Error</strong><br>
+                    <strong>Details:</strong> ${error.message}
+                `;
+            }
+        }
+        
+        function viewDocs() {
+            window.open('https://github.com/Balaharan007/HACKRX#readme', '_blank');
+        }
+        
+        // Auto-test on page load (optional)
+        // setTimeout(testAPI, 2000);
+    </script>
+</body>
+</html>
