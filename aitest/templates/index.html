@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Verification Test</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2><i class="fas fa-file-alt"></i> Resume Verification Test</h2>
+        
+        <div id="uploadSection">
+            <div class="upload-area">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #3498db; margin-bottom: 15px;"></i>
+                <h3>Upload Your Resume</h3>
+                <p>Upload your resume to generate personalized test questions</p>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" id="fileInput" name="file" accept=".pdf">
+                    <div class="file-info" id="fileInfo">No file selected</div>
+                    <button type="button" class="primary" onclick="uploadResume()"><i class="fas fa-upload"></i> Upload Resume</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="testSection" class="hidden">
+            <div class="upload-success">
+                <i class="fas fa-check-circle" style="font-size: 48px; color: #2ecc71; margin-bottom: 15px;"></i>
+                <h3>Resume Uploaded Successfully!</h3>
+                <p>We've analyzed your resume and prepared a personalized test for you.</p>
+                <button type="button" class="success" onclick="startTest()"><i class="fas fa-play-circle"></i> Take Test Now</button>
+            </div>
+        </div>
+
+        <div id="questionsContainer" class="hidden">
+            <h2><i class="fas fa-question-circle"></i> Knowledge Verification Test</h2>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">Question 1 of 15</div>
+            </div>
+            <form id="answersForm">
+                <div id="questionsList"></div>
+                <button type="button" class="success" onclick="submitAnswers()"><i class="fas fa-check"></i> Submit Answers</button>
+            </form>
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <i id="resultIcon" class="fas fa-award" style="font-size: 64px; color: #f39c12; margin-bottom: 20px;"></i>
+            <h2>Your Test Results</h2>
+            <div id="score" class="fade-in"></div>
+            <div id="nftTag" class="fade-in"></div>
+            <div id="nftBadge" class="nft-badge fade-in"></div>
+            <button type="button" class="primary" onclick="resetTest()"><i class="fas fa-redo"></i> Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        let mcqs = [];
+        let currentQuestion = 0;
+        
+        // File input change handler
+        document.getElementById("fileInput").addEventListener("change", function() {
+            const fileInfo = document.getElementById("fileInfo");
+            if (this.files.length > 0) {
+                fileInfo.textContent = `Selected file: ${this.files[0].name}`;
+            } else {
+                fileInfo.textContent = "No file selected";
+            }
+        });
+
+        function uploadResume() {
+            let fileInput = document.getElementById("fileInput");
+            if (!fileInput.files[0]) {
+                alert("Please select a file first");
+                return;
+            }
+            
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            
+            // Show loading state
+            document.querySelector(".upload-area").innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #3498db; margin-bottom: 15px;"></i>
+                    <p>Analyzing your resume...</p>
+                </div>
+            `;
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.mcqs) {
+                    mcqs = data.mcqs;
+                    document.getElementById("uploadSection").classList.add("hidden");
+                    document.getElementById("testSection").classList.remove("hidden");
+                    document.getElementById("testSection").classList.add("fade-in");
+                }
+            })
+            .catch(error => {
+                alert("Error uploading resume: " + error);
+                // Reset upload area
+                document.querySelector(".upload-area").innerHTML = `
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #3498db; margin-bottom: 15px;"></i>
+                    <h3>Upload Your Resume</h3>
+                    <p>Upload your resume to generate personalized test questions</p>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <input type="file" id="fileInput" name="file" accept=".pdf">
+                        <div class="file-info" id="fileInfo">No file selected</div>
+                        <button type="button" class="primary" onclick="uploadResume()"><i class="fas fa-upload"></i> Upload Resume</button>
+                    </form>
+                `;
+            });
+        }
+
+        function startTest() {
+            document.getElementById("testSection").classList.add("hidden");
+            document.getElementById("questionsContainer").classList.remove("hidden");
+            document.getElementById("questionsContainer").classList.add("fade-in");
+            displayQuestions(mcqs);
+        }
+
+        function displayQuestions(mcqs) {
+            let questionsList = document.getElementById("questionsList");
+            questionsList.innerHTML = "";
+
+            mcqs.forEach((mcq, index) => {
+                let div = document.createElement("div");
+                div.className = index === 0 ? "question-item visible" : "question-item hidden";
+                div.innerHTML = `
+                    <p><strong>Question ${index + 1}:</strong> ${mcq.question}</p>
+                    <div class="options-container">
+                        ${mcq.options.map((opt, i) => `
+                            <label class="option-label">
+                                <input type="radio" name="q${index}" value="${opt.charAt(0)}"> 
+                                <span class="option-text">${opt}</span>
+                            </label>
+                        `).join("")}
+                    </div>
+                    ${index < mcqs.length - 1 ? 
+                        `<button type="button" class="next-btn" onclick="nextQuestion(${index})">Next <i class="fas fa-arrow-right"></i></button>` : 
+                        `<button type="button" class="finish-btn" onclick="finishQuestions()">Finish <i class="fas fa-check"></i></button>`
+                    }
+                `;
+                questionsList.appendChild(div);
+            });
+
+            updateProgress(0);
+        }
+
+        function nextQuestion(currentIndex) {
+            // Check if an option is selected
+            const selectedOption = document.querySelector(`input[name="q${currentIndex}"]:checked`);
+            if (!selectedOption) {
+                alert("Please select an answer before proceeding.");
+                return;
+            }
+
+            // Hide current question
+            document.querySelectorAll(".question-item")[currentIndex].classList.add("hidden");
+            document.querySelectorAll(".question-item")[currentIndex].classList.remove("visible");
+            
+            // Show next question
+            document.querySelectorAll(".question-item")[currentIndex + 1].classList.remove("hidden");
+            document.querySelectorAll(".question-item")[currentIndex + 1].classList.add("visible");
+            
+            // Update progress
+            updateProgress(currentIndex + 1);
+        }
+
+        function finishQuestions() {
+            // Check if the last question has an answer
+            const lastIndex = mcqs.length - 1;
+            const selectedOption = document.querySelector(`input[name="q${lastIndex}"]:checked`);
+            if (!selectedOption) {
+                alert("Please select an answer before submitting.");
+                return;
+            }
+            
+            submitAnswers();
+        }
+
+        function updateProgress(questionIndex) {
+            currentQuestion = questionIndex;
+            const progressBar = document.getElementById("progressBar");
+            const progressText = document.getElementById("progressText");
+            
+            const progressPercentage = ((questionIndex + 1) / mcqs.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `Question ${questionIndex + 1} of ${mcqs.length}`;
+        }
+
+        function submitAnswers() {
+            let answers = [];
+            mcqs.forEach((mcq, index) => {
+                let selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+                answers.push(selectedOption ? selectedOption.value : "");
+            });
+
+            // Check if all questions are answered
+            if (answers.includes("")) {
+                alert("Please answer all questions before submitting.");
+                return;
+            }
+
+            fetch("/evaluate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mcqs, answers })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("questionsContainer").classList.add("hidden");
+                document.getElementById("resultContainer").style.display = "block";
+                
+                // Display score
+                document.getElementById("score").innerText = "Your Score: " + data.score;
+                
+                // Display NFT tag with appropriate styling
+                document.getElementById("nftTag").innerText = "NFT Tag: " + data.nft_tag;
+                
+                // Add NFT badge with appropriate class
+                const nftBadge = document.getElementById("nftBadge");
+                nftBadge.innerText = data.nft_tag;
+                
+                // Remove any existing classes
+                nftBadge.className = "nft-badge fade-in";
+                
+                // Add appropriate class based on NFT tag
+                if (data.nft_tag.includes("Platinum")) {
+                    nftBadge.classList.add("platinum");
+                    document.getElementById("resultIcon").style.color = "#8e9eab";
+                } else if (data.nft_tag.includes("Gold")) {
+                    nftBadge.classList.add("gold");
+                    document.getElementById("resultIcon").style.color = "#f5af19";
+                } else if (data.nft_tag.includes("Silver")) {
+                    nftBadge.classList.add("silver");
+                    document.getElementById("resultIcon").style.color = "#757f9a";
+                } else {
+                    nftBadge.classList.add("no-nft");
+                    document.getElementById("resultIcon").style.color = "#95a5a6";
+                }
+            });
+        }
+
+        function resetTest() {
+            // Reset all sections
+            document.getElementById("uploadSection").classList.remove("hidden");
+            document.getElementById("testSection").classList.add("hidden");
+            document.getElementById("questionsContainer").classList.add("hidden");
+            document.getElementById("resultContainer").style.display = "none";
+            
+            // Reset file input
+            document.getElementById("fileInput").value = "";
+            document.getElementById("fileInfo").textContent = "No file selected";
+            
+            // Reset progress
+            currentQuestion = 0;
+            mcqs = [];
+        }
+    </script>
+</body>
+</html>
